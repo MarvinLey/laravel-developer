@@ -27,4 +27,24 @@ class Golfer extends Model
         'latitude' => 'float',
         'longitude' => 'float',
     ];
+
+    /**
+     *Gibt, anhand der Haversine Formel, die nächstgelegenen Golfer zurück
+     */
+
+    public static function nearby(float $latitude, float $longitude, int $limit = 500)
+    {
+     return static::query()
+     ->select('*')
+     ->selectRaw('
+        (6371 * acos(
+            cos(radians(?)) * cos(radians(latitude)) *
+            cos(radians(longitude) - radians(?)) +
+            sin(radians(?)) * sin(radians(latitude))
+        )) AS distance
+     ', [$latitude, $longitude,$latitude ])
+     ->orderBy('distance')
+     ->limit($limit)
+     ->get();
+    }
 }
